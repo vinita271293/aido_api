@@ -57,7 +57,7 @@ app.get('/getAllAido', function (req, res) {
 });
 
 
-app.listen(8080 ,
+app.listen(7000 ,
      (err, resp) => {
   console.log("server started");
 });
