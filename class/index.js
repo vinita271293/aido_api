@@ -12,7 +12,7 @@ var mysql = require('mysql');
 
 
 
-app.get('/getAllCats', function (req, res) {
+app.get('/getAllAido', function (req, res) {
    
     // var connection = mysql.createConnection({
     //     host     : "localhost",
@@ -27,7 +27,7 @@ app.get('/getAllCats', function (req, res) {
   host     : "localhost",
   user     : "root",
   password : "test1234",
-  port     : 3306,
+  
   
 });
 
@@ -56,7 +56,7 @@ app.get('/getAllCats', function (req, res) {
 });
 
 
-// app.listen(7000,
-//      (err, resp) => {
-//   console.log("server started");
-// });
+app.listen(7000,
+     (err, resp) => {
+  console.log("server started");
+});
