@@ -1,55 +1,65 @@
+
+
+
 <?php
- echo "aido file started";
-    // header("Access-Control-Allow-Origin: *");
-    // header("Content-Type: application/json; charset=UTF-8");
+// SET HEADER
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: access");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Allow-Credentials: true");
+header("Content-Type: application/json; charset=UTF-8");
+
+// INCLUDING DATABASE AND MAKING OBJECT
+require 'database.php';
+$db_connection = new Database();
+$conn = $db_connection->dbConnection();
+
+// CHECK GET ID PARAMETER OR NOT
+if(isset($_GET['id']))
+{
+    //IF HAS ID PARAMETER
+    $post_id = filter_var($_GET['id'], FILTER_VALIDATE_INT,[
+        'options' => [
+            'default' => 'all_posts',
+            'min_range' => 1
+        ]
+    ]);
+}
+else{
+    $post_id = 'all_posts';
+}
+
+// MAKE SQL QUERY
+// IF GET POSTS ID, THEN SHOW POSTS BY ID OTHERWISE SHOW ALL POSTS
+$sql = is_numeric($post_id) ? "SELECT * FROM `aido_registration` WHERE id='$post_id'" : "SELECT * FROM `aido_registration`"; 
+
+$stmt = $conn->prepare($sql);
+
+$stmt->execute();
+
+//CHECK WHETHER THERE IS ANY POST IN OUR DATABASE
+if($stmt->rowCount() > 0){
+    // CREATE POSTS ARRAY
+    $posts_array = [];
     
-    include './config.php';
-    include './connect.php';
-    
-   
-        $sqlQuery = "SELECT * FROM aido_registration" ;
-        $stmt = $this->conn->prepare($sqlQuery);
-        $stmt->execute();
-        return $stmt;
-        $itemCount = $stmt->rowCount();
-        echo json_encode($itemCount);
-        if($itemCount > 0){
+    while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
         
-            $aidoArr = array();
-            $aidoArr["body"] = array();
-            $aidoArr["itemCount"] = $itemCount;
-    
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                extract($row);
-                $e = array(
-                    "aido_id" => $aido_id,
-                    "aido_name" => $aido_name,
-                    "aido_email" => $email,
-                    "aido_skype" => $age,
-                    
-                );
-    
-                array_push($employeeArr["body"], $e);
-            }
-            echo json_encode($employeeArr);
-        }
-    
-        else{
-            http_response_code(404);
-            echo json_encode(
-                array("message" => "No record found.")
-            );
-        }
-    
+        $post_data = [
+            'aido_id' => $row['aido_id'],
+            'aido_name' => $row['aido_name'],
+            // 'aido_email' => html_entity_decode($row['aido_email']),
+            'aido_skype' => $row['=aido_skype']
+        ];
+        // PUSH POST DATA IN OUR $posts_array ARRAY
+        array_push($posts_array, $post_data);
+    }
+    //SHOW POST/POSTS IN JSON FORMAT
+    echo json_encode($posts_array);
+ 
 
-
-   
-
-   
-   
-
-
-   
-
-    
+}
+else{
+    //IF THER IS NO POST IN OUR DATABASE
+    echo json_encode(['message'=>'No post found']);
+}
 ?>
