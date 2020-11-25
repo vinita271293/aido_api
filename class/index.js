@@ -27,6 +27,7 @@ app.get('/getAllAido', function (req, res) {
   host     : "localhost",
   user     : "root",
   password : "test1234",
+  database:"aido_test"
   
   
 });
