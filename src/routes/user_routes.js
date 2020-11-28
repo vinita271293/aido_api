@@ -1,34 +1,16 @@
-// module.exports = app => {
-//     const user = require("../controllers/user_controller");
-  
-//     // Create a new Customer
-//     app.post("/user", user.create);
-  
-//     // Retrieve all Customers
-//     app.get("/getAllUsers", user.findAll);
-  
-//     // // Retrieve a single Customer with customerId
-//     // app.get("/customers/:customerId", customers.findOne);
-  
-//     // // Update a Customer with customerId
-//     // app.put("/customers/:customerId", customers.update);
-  
-//     // // Delete a Customer with customerId
-//     // app.delete("/customers/:customerId", customers.delete);
-  
-//     // // Create a new Customer
-//     // app.delete("/customers", customers.deleteAll);
-//   };
+
 
 const express = require('express');
 const router = express.Router();
 const user = require("../controllers/user_controller");
+const {verify} = require("../controllers/verify")
 
 // Create a new user
-router.post("/users", user.create);
+router.post("/users",user.create);
+router.post("/users_aido", user.user_aido_rel);
 
 // Retrieve all User
-router.get("/users", user.findAll);
+router.get("/users", verify,user.findAll);
 
 // Retrieve a single User with userId
 router.get("/users/:userId", user.findOne);

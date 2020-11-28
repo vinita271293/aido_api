@@ -1,4 +1,5 @@
 const express = require("express");
+const crypto = require('crypto')
 
 const app = express();
 const bodyParser = require("body-parser");
@@ -13,17 +14,34 @@ exports.create = (req, res) => {
       message: "Content can not be empty!"
     });
   }
-  console.log("req body",req.body)
+  
+  let salt = crypto.randomBytes(16).toString('base64');
+  let hash = crypto.createHmac('sha512',salt)
+                                   .update(req.body.password)
+                                   .digest("base64");
+
+     //to compare password from db and user request                              
+    // comparePassword(salt + "$" + hash,"email3update")
+                                   req.body.password = salt + "$" + hash;
+
+
+
+console.log("crypted password",req.body.password)
+console.log("req body last",req.body)
 
   // Create a user
   const user = new User({
+   
+    skype: req.body.skype,
+    password : req.body.password,
     email: req.body.email,
-    name: req.body.name,
-    skype: req.body.skype
+    username: req.body.username
   });
 
 
   // Save user in the database
+
+  console.log("crypted password user",user)
   User.create(user, (err, data) => {
     if (err)
       res.status(500).send({
@@ -32,6 +50,34 @@ exports.create = (req, res) => {
       });
     else res.send(data);
   });
+  
+};
+
+// insert into user_table_rel
+exports.user_aido_rel = (req, res) => {
+    var data = {
+       
+            "email": req.query.email,
+            "aido_id": req.query.aidoId,
+            "user_type_id":req.query.typeId
+        }
+        console.log("user aido rel",req.query.email,req.query.aidoId)
+     
+    User.user_aido_rel_create(data, (err, data) => {
+        console.log("data sent in aido user realtion",data)
+        if (err) {
+          if (err.kind === "not_found") {
+            res.status(404).send({
+              message: `Not found User with id ${req.params.email}.`
+            });
+          } else {
+            res.status(500).send({
+              message: "Error retrieving User with id " + req.params.email
+            });
+          }
+        } else res.send(data);
+      });
+  
   
 };
 
@@ -48,16 +94,16 @@ exports.findAll = (req, res) => {
 };
 
 // Find a single user with a userId
-exports.findOne = (req, res) => {
-    User.findById(req.params.userId, (err, data) => {
+exports.findOne = (req, res) => {   
+    User.findById(req.params.email, (err, data) => {
         if (err) {
           if (err.kind === "not_found") {
             res.status(404).send({
-              message: `Not found User with id ${req.params.userId}.`
+              message: `Not found User with id ${req.params.email}.`
             });
           } else {
             res.status(500).send({
-              message: "Error retrieving User with id " + req.params.userId
+              message: "Error retrieving User with id " + req.params.email
             });
           }
         } else res.send(data);
@@ -76,17 +122,17 @@ exports.update = (req, res) => {
   }
 
   User.updateById(
-    req.params.userId,
+    req.params.email,
     new User(req.body),
     (err, data) => {
       if (err) {
         if (err.kind === "not_found") {
           res.status(404).send({
-            message: `Not found User with id ${req.params.userId}.`
+            message: `Not found User with id ${req.params.email}.`
           });
         } else {
           res.status(500).send({
-            message: "Error updating User with id " + req.params.userId
+            message: "Error updating User with id " + req.params.email
           });
         }
       } 
@@ -98,15 +144,15 @@ exports.update = (req, res) => {
 
 // Delete a users with the specified usersId in the request
 exports.delete = (req, res) => {
-    User.remove(req.params.userId, (err, data) => {
+    User.remove(req.params.email, (err, data) => {
         if (err) {
           if (err.kind === "not_found") {
             res.status(404).send({
-              message: `Not found User with id ${req.params.userId}.`
+              message: `Not found User with id ${req.params.email}.`
             });
           } else {
             res.status(500).send({
-              message: "Could not delete User with id " + req.params.userId
+              message: "Could not delete User with id " + req.params.email
             });
           }
         } else res.send({ message: `User was deleted successfully!` });
