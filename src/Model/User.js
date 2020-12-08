@@ -3,6 +3,7 @@
 
 const connection = require("../database.js/connection");
 
+
 // constructor
 const User = function(user) {
   this.email  = user.email;
@@ -31,6 +32,15 @@ User.create = (newUser, result) => {
 };
 User.user_aido_rel_create = (data, result) => {
   console.log("user and aido id",data)
+  // check if user_id or aido id present or not 
+  //...remaining
+
+
+  
+
+  
+  
+  
   connection.query("INSERT INTO aido_user_relationship SET ?", data, (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -38,8 +48,8 @@ User.user_aido_rel_create = (data, result) => {
       return;
     }
 
-    console.log("created user aido relationship: ", {...data});
-    result(null, {  ...data });
+    console.log("created user aido relationship: ", {id: res.insertId,...data});
+    result(null, { id: res.insertId, ...data });
   });
   
 
@@ -47,7 +57,7 @@ User.user_aido_rel_create = (data, result) => {
 
 User.findById = (email, result) => {
   
-  connection.query(`SELECT * FROM users WHERE email = ${email}`, (err, res) => {
+  connection.query("SELECT * FROM users WHERE email ='"+email+"'", (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -96,11 +106,24 @@ User.getAll = result => {
     result(null, res);
   });
 };
+User.getAllUsersAido = result => {
+  connection.query("SELECT * FROM aido_user_relationship", (err, res) => {
+  if (err) {
+    console.log("error: ", err);
+    result(null, err);
+    return;
+  }
+
+  console.log("users: ", res);
+  result(null, res);
+});
+};
 
 User.updateById = (id, user, result) => {
+  console.log("updateById",user)
   connection.query(
-    "UPDATE users SET  name = ?, skype = ? WHERE email = ?",
-    [ user.name, user.skype, id],
+    "UPDATE users SET  username = ?, skype = ? WHERE email = ?",
+    [ user.username, user.skype, id],
     (err, res) => {
       if (err) {
         console.log("error: ", err);

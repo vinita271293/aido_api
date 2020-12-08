@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-
+const {verify}  = require("./../controllers/verify")
 const auth = require("../controllers/auth_controller")
-// Create a new user
+
+router.post("/refresh" ,auth.refresh);
 router.post("/login", auth.login);
-router.post("/refresh/:userId", auth.refresh);
+
 
 
 module.exports = router

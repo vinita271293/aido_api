@@ -36,15 +36,15 @@ exports.login = (req, res) => {
                let payload = {email: req.body.email};
                //create the access token with the shorter lifespan
                let accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-                algorithm: "HS256"
-                // expiresIn: process.env.ACCESS_TOKEN_LIFE
+                algorithm: "HS256",
+                 expiresIn: process.env.ACCESS_TOKEN_LIFE
             })
             
 
             //create the refresh token with the longer lifespan
     let refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-        algorithm: "HS256"
-        // expiresIn: process.env.REFRESH_TOKEN_LIFE
+        algorithm: "HS256",
+        //  expiresIn: process.env.REFRESH_TOKEN_LIFE
     })
 
 //store the refresh token in the database
@@ -83,39 +83,48 @@ return true;
 }
 
 exports.refresh = (req,res) =>{
-
+    console.log("refresh api refreshToken body",req.body)
            //retrieve the refresh token from the users array
            let refreshToken = req.body.refreshToken
-           let payload = req.params.userId
+           let payload = req.body.userId
 console.log("refresh api refreshToken", refreshToken)
-console.log("refresh api payload", payload)
-console.log("REFRESH_TOKEN_SECRET",process.env.REFRESH_TOKEN_SECRET)
-console.log("jwt veryfy",jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET))
+
+
+//console.log("jwt veryfy",jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET))
            //verify the refresh token
            try{
-               jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
-           }
+            
+                jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+               
+            
+          
+            }
            catch(e){
                res.send(e)
                //return res.status(401).send()
            }
+
+           console.log("refresh api payload", payload)
+           let newAccessToken = jwt.sign({userId:payload}, process.env.ACCESS_TOKEN_SECRET, {
+            algorithm: "HS256",
+            expiresIn: process.env.ACCESS_TOKEN_LIFE
+        })
+        
+            let newRefreshToken = jwt.sign({userId:payload}, process.env.REFRESH_TOKEN_SECRET, 
+             {
+                 algorithm: "HS256",
+                //  expiresIn: process.env.REFRESH_TOKEN_LIFE
+             })
+             let data = {
+                 accessToken :newAccessToken,
+                 refreshToken : newRefreshToken
+             }
+             
+             console.log("REFRESH_TOKEN_SECRET",data)
+             res.send(data)
        
-           let newAccessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, 
-           {
-               algorithm: "HS256",
-               expiresIn: process.env.ACCESS_TOKEN_LIFE
-           })
-           let newRefreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, 
-            {
-                algorithm: "HS256",
-                expiresIn: process.env.REFRESH_TOKEN_LIFE
-            })
-            let data = {
-                accessToken :newAccessToken,
-                refreshToken : newRefreshToken
-            }
-       
+           
            //res.cookie("jwt", newToken, {secure: true, httpOnly: true})
-           res.send(data)
+           
 
 }

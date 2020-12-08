@@ -7,14 +7,28 @@ exports.verify = function(req, res, next){
     if (req.headers['authorization']) {
         try {
             let authorization = req.headers['authorization'].split(' ');
+            console.log("Bearer","called")
             if (authorization[0] !== 'Bearer') {
                 return res.status(401).send();
-            } else {
-                req.jwt = jwt.verify(authorization[1], process.env.ACCESS_TOKEN_SECRET);
+                
+            } 
+            else {
+               
+               let payload =   jwt.verify(authorization[1], process.env.ACCESS_TOKEN_SECRET);
+               
+               console.log("jwt verifivcation",payload)
+               
+                
                 return next();
             }
-        } catch (err) {
+        } 
+        catch (err) {
             console.log("error",err)
+            if(err == 'TokenExpiredError: jwt expired'){
+                console.log("refresh token here")
+                
+
+            }
            // if(err.message == "in")
             return res.send(err)
            

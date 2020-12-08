@@ -20,8 +20,6 @@ exports.create = (req, res) => {
                                    .update(req.body.password)
                                    .digest("base64");
 
-     //to compare password from db and user request                              
-    // comparePassword(salt + "$" + hash,"email3update")
                                    req.body.password = salt + "$" + hash;
 
 
@@ -57,32 +55,59 @@ console.log("req body last",req.body)
 exports.user_aido_rel = (req, res) => {
     var data = {
        
-            "email": req.query.email,
-            "aido_id": req.query.aidoId,
-            "user_type_id":req.query.typeId
+            "user_id": req.body.email,
+            "aido_id": req.body.aidoId,
+            "user_type_id":req.body.typeId
         }
-        console.log("user aido rel",req.query.email,req.query.aidoId)
-     
-    User.user_aido_rel_create(data, (err, data) => {
-        console.log("data sent in aido user realtion",data)
-        if (err) {
-          if (err.kind === "not_found") {
-            res.status(404).send({
-              message: `Not found User with id ${req.params.email}.`
-            });
-          } else {
+        console.log("user aido rel",req.body.email,req.body.aidoId)
+
+        User.user_aido_rel_create(data, (err, data) => {
+          if (err)
             res.status(500).send({
-              message: "Error retrieving User with id " + req.params.email
+              message:
+                err.message || "Some error occurred while creating the users."
             });
-          }
-        } else res.send(data);
-      });
+          else res.send(data);
+        });
+
+
+     
+    // User.user_aido_rel_create(data, (err, data) => {
+    //     console.log("data sent in aido user realtion",data)
+    //     if (err) {
+    //       if (err.kind === "not_found") {
+    //         res.status(404).send({
+    //           message: `Not found User with id ${req.body.email}.`
+    //         });
+    //       } else {
+    //         res.status(500).send({
+    //           message: "Error retrieving User with id " + req.body.email
+    //         });
+    //       }
+    //     } 
+    //     else res.send(data);
+    //   });
   
   
 };
 
+//retrive All user_aido
+exports.findAllUserAido = (req, res) => {
+  User.getAllUsersAido((err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving users."
+        });
+      else res.send(data);
+    });
+};
+
+
+
 // Retrieve all users from the database.
 exports.findAll = (req, res) => {
+  console.log("findOne",req.query.userId) 
     User.getAll((err, data) => {
         if (err)
           res.status(500).send({
@@ -94,16 +119,18 @@ exports.findAll = (req, res) => {
 };
 
 // Find a single user with a userId
-exports.findOne = (req, res) => {   
-    User.findById(req.params.email, (err, data) => {
+exports.findOne = (req, res) => {  
+  
+  console.log("findOne1",req.params.userId) 
+    User.findById(req.params.userId, (err, data) => {
         if (err) {
           if (err.kind === "not_found") {
             res.status(404).send({
-              message: `Not found User with id ${req.params.email}.`
+              message: `Not found User with id ${req.params.userId}.`
             });
           } else {
             res.status(500).send({
-              message: "Error retrieving User with id " + req.params.email
+              message: "Error retrieving User with id " + req.params.userId
             });
           }
         } else res.send(data);
@@ -114,6 +141,8 @@ exports.findOne = (req, res) => {
 
 // Update a users identified by the usersId in the request
 exports.update = (req, res) => {
+  
+  console.log("updateById")
      // Validate Request
   if (!req.body) {
     res.status(400).send({
@@ -122,17 +151,17 @@ exports.update = (req, res) => {
   }
 
   User.updateById(
-    req.params.email,
+    req.params.userId,
     new User(req.body),
     (err, data) => {
       if (err) {
         if (err.kind === "not_found") {
           res.status(404).send({
-            message: `Not found User with id ${req.params.email}.`
+            message: `Not found User with id ${req.params.userId}.`
           });
         } else {
           res.status(500).send({
-            message: "Error updating User with id " + req.params.email
+            message: "Error updating User with id " + req.params.userId
           });
         }
       } 
