@@ -1,6 +1,7 @@
 
 
 
+
 const connection = require("../database.js/connection");
 
 
@@ -34,6 +35,29 @@ User.user_aido_rel_create = (data, result) => {
   console.log("user and aido id",data)
   // check if user_id or aido id present or not 
   //...remaining
+  //SELECT EXISTS(SELECT * from ExistsRowDemo WHERE ExistId=104)
+  connection.query("SELECT EXISTS(SELECT * FROM users WHERE email ='"+data.user_id+"')", (err, res) => {
+    if(res!= undefined){
+      
+      let obj = res[0];
+      console.log("check user exists or not response",obj.key)
+//       var jsonObj = JSON.parse(res[0]);
+// console.log(jsonObj.key);
+var string=JSON.stringify(res[0]);
+        console.log('>> string: ', string );
+        var json =  JSON.parse(string);
+        console.log('>> json: ', json);
+        //console.log('>> user.name: ', json[0].name);
+     
+
+    }
+    if(err){
+console.log("check user exists or not error",err)
+    }
+
+  });
+
+
 
 
   

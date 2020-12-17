@@ -86,7 +86,7 @@ exports.refresh = (req,res) =>{
     console.log("refresh api refreshToken body",req.body)
            //retrieve the refresh token from the users array
            let refreshToken = req.body.refreshToken
-           let payload = req.body.userId
+           let payload = req.body.id
 console.log("refresh api refreshToken", refreshToken)
 
 
@@ -105,12 +105,12 @@ console.log("refresh api refreshToken", refreshToken)
            }
 
            console.log("refresh api payload", payload)
-           let newAccessToken = jwt.sign({userId:payload}, process.env.ACCESS_TOKEN_SECRET, {
+           let newAccessToken = jwt.sign({id:payload}, process.env.ACCESS_TOKEN_SECRET, {
             algorithm: "HS256",
             expiresIn: process.env.ACCESS_TOKEN_LIFE
         })
         
-            let newRefreshToken = jwt.sign({userId:payload}, process.env.REFRESH_TOKEN_SECRET, 
+            let newRefreshToken = jwt.sign({id:payload}, process.env.REFRESH_TOKEN_SECRET, 
              {
                  algorithm: "HS256",
                 //  expiresIn: process.env.REFRESH_TOKEN_LIFE
@@ -127,4 +127,4 @@ console.log("refresh api refreshToken", refreshToken)
            //res.cookie("jwt", newToken, {secure: true, httpOnly: true})
            
 
-}
+}   
