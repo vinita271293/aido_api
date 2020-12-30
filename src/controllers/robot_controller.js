@@ -1,5 +1,5 @@
 const express = require("express");
-const crypto = require('crypto')
+const crypto = require('crypto')    
 
 
 const app = express();
@@ -73,16 +73,16 @@ exports.findAll = (req, res) => {
 // Find a single aido with a aidoId
 exports.findOne = (req, res) => {  
   
-  console.log("findOne1",req.params.aidoId) 
-    Aido.findById(req.params.aidoId, (err, data) => {
+ 
+    Aido.findById(req.params.robotId, (err, data) => {
         if (err) {
           if (err.kind === "not_found") {
             res.status(404).send({
-              message: `Not found Aido with id ${req.params.aidoId}.`
+              message: `Not found Aido with id ${req.params.robotId}.`
             });
           } else {
             res.status(500).send({
-              message: "Error retrieving UsAidoer with id " + req.params.aidoId
+              message: "Error retrieving UsAidoer with id " + req.params.robotId
             });
           }
         } else res.send(data);
@@ -94,26 +94,41 @@ exports.findOne = (req, res) => {
 // Update a aido identified by the aidoId in the request
 exports.update = (req, res) => {
   
-  console.log("updateById")
+  
      // Validate Request
   if (!req.body) {
+    console.log("updateById", "body not present")
     res.status(400).send({
       message: "Content can not be empty!"
     });
   }
+  console.log("updateById", req.body);
+  console.log("updateById", req.body.name);
+  console.log("updateById", req.body.id);
+ 
+  
+  const aido = new Aido({
+   
+    skype: req.body.skype,
+  evernote : req.body.evernote,
+  password : req.body.password,
+   name: req.body.name,
+    id: req.body.id
 
+  });
+  console.log("updateById", aido)
   Aido.updateById(
-    req.params.aidoId,
-    new Aido(req.body),
+    req.params.robotId,
+    aido,
     (err, data) => {
       if (err) {
         if (err.kind === "not_found") {
           res.status(404).send({
-            message: `Not found Aido with id ${req.params.aidoId}.`
+            message: `Not found Aido with id ${req.params.robotId}.`
           });
         } else {
           res.status(500).send({
-            message: "Error updating Aido with id " + req.params.aidoId
+            message: "Error updating Aido with id " + req.params.robotId
           });
         }
       } 
@@ -122,6 +137,61 @@ exports.update = (req, res) => {
   );
   
 };
+
+
+
+exports.changePassword = (req, res) => {
+  
+  
+  // Validate Request
+if (!req.body) {
+ console.log("updateById", "body not present")
+ res.status(400).send({
+   message: "Content can not be empty!"
+ });
+}
+
+console.log("chnaged password", req.body.password)
+let salt = crypto.randomBytes(16).toString('base64');
+  let hash = crypto.createHmac('sha512',salt)
+                                   .update(req.body.password)
+                                   .digest("base64");
+
+                                   req.body.password = salt + "$" + hash;
+
+
+
+
+console.log("chnaged password", req.body.password)
+Aido.changePassword(
+ req.params.robotId,
+ req.body.password,
+ (err, data) => {
+   if (err) {
+     if (err.kind === "not_found") {
+       res.status(404).send({
+         message: `Not found robot with id ${req.params.robotId}.`
+       });
+     } else {
+       res.status(500).send({
+         message: "Error updating robot with id " + req.params.robotId
+       });
+     }
+   } 
+   else {
+     
+    console.log("change password",data);
+    res.send({
+      status : 200,
+      message:"Password successfully changed"
+    });
+  
+  }
+ }
+);
+
+};
+
 
 // Delete a aido with the specified aidoId in the request
 exports.delete = (req, res) => {

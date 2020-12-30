@@ -6,6 +6,9 @@ const {verify} = require("../controllers/verify")
 // Create a new robot
 router.post("/robots",robot.create);
 
+// Change password
+router.post("/robot/changepassword/:robotId",verify,robot.changePassword);
+
 
 // // Create a new user_aido_relation(duplicate entry needs to avoid)
 // router.post("/users_aido", verify,user.user_aido_rel);

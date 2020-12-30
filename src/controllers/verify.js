@@ -29,7 +29,10 @@ exports.verify = function(req, res, next){
                 
  }
            // if(err.message == "in")
-            return res.send(err)
+           // return res.send(err)
+           return res.status(401).send({
+                message: `TokenExpiredError`
+              });
            
             //return res.status(403).send();
      

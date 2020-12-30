@@ -118,6 +118,7 @@ User.findByIdLoginDetail = (email, result) => {
   });
 };
 
+
 User.getAll = result => {
     connection.query("SELECT * FROM Users", (err, res) => {
     if (err) {
